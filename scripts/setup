@@ -1,0 +1,28 @@
+#! /usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+IFS=$'\n\t'
+
+(
+  cd "$HOME"
+
+  if [[ -x "/boot/firmware/update" ]]; then
+    /boot/firmware/update
+  else
+    printf "%s\n" "Skipped: Update script not found."
+  fi
+
+  if [[ -x "/boot/firmware/docker" ]]; then
+    /boot/firmware/docker
+  else
+    printf "%s\n" "Skipped: Docker script not found."
+  fi
+
+  if [[ -x "/boot/firmware/projects" ]]; then
+    /boot/firmware/projects
+  else
+    printf "%s\n" "Skipped: Projects script not found."
+  fi
+)
