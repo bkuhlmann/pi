@@ -1,0 +1,97 @@
+:toc: macro
+:toclevels: 5
+:figure-caption!:
+
+:pi_link: link:https://www.raspberrypi.org[Raspberry Pi]
+:pi_os_link: link:https://www.raspberrypi.com/software/operating-systems/[Raspberry Pi OS]
+:pi_hardware_link: link:https://www.raspberrypi.com/products[Raspberry Pi Hardware]
+
+= Pi
+
+This project automates the setup of your Raspberry Pi by flashing your microSSD card with the {pi_os_link} for immediate for your device.
+
+toc::[]
+
+== Features
+
+* Sets up and configures your {pi_link}.
+
+== Requirements
+
+* {pi_link}
+
+== Setup
+
+To install, run:
+
+[source,bash]
+----
+git clone https://github.com/bkuhlmann/pi.git
+cd pi
+git checkout 0.0.0
+----
+
+== Usage
+
+=== File Structure
+
+All files located within this project provide the basic structure/blueprint for creating new Bash
+script projects. The structure is organized as follows:
+
+....
+├── bin           # A folder for executable Bash scripts.
+│   └── run       # The main run script (which loads the lib and settings).
+├── lib           # A folder for Bash functions and custom code.
+│   └── cli.sh    # Provides CLI prompt options for the main `run` script.
+├── settings
+│   └── main.sh   # The global/project settings for easy manipulation/tweaking.
+├── .gitignore    # The Git list of folders and files to ignore.
+├── LICENSE.adoc  # The license and copyright legalities of the project.
+└── README.adoc   # The project overview, setup, usage, testing, etc.
+....
+
+=== Debugging
+
+For debugging purposes, you can add the following option:
+
+[source,bash]
+----
+# Prints all executed commands.
+# Alias: `set -x`.
+set -o xtrace
+----
+
+The above is useful for debugging purposes but probably not something you want always enabled.
+
+== Development
+
+To contribute, run:
+
+[source,bash]
+----
+git clone https://github.com/bkuhlmann/pi.git
+cd pi
+----
+
+== Tests
+
+Consider using link:https://github.com/sstephenson/bats[Bats].
+
+== link:https://alchemists.io/policies/license[License]
+
+== link:https://alchemists.io/policies/security[Security]
+
+== link:https://alchemists.io/policies/code_of_conduct[Code of Conduct]
+
+== link:https://alchemists.io/policies/contributions[Contributions]
+
+== link:https://alchemists.io/policies/developer_certificate_of_origin[Developer Certificate of Origin]
+
+== link:https://alchemists.io/projects/pi/versions[Versions]
+
+== link:https://alchemists.io/community[Community]
+
+== Credits
+
+* Build with link:https://alchemists.io/projects/bashsmith[Bashsmith].
+* Engineered by link:https://alchemists.io/team/brooke_kuhlmann[Brooke Kuhlmann].
