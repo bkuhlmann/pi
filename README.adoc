@@ -2,27 +2,40 @@
 :toclevels: 5
 :figure-caption!:
 
-:pi_link: link:https://www.raspberrypi.org[Raspberry Pi]
-:pi_os_link: link:https://www.raspberrypi.com/software/operating-systems/[Raspberry Pi OS]
+:homebrew_link: link:https://brew.sh[Homebrew]
+:pi_documenation_link: link:https://www.raspberrypi.com/documentation/computers[Raspberry Pi Documentation]
 :pi_hardware_link: link:https://www.raspberrypi.com/products[Raspberry Pi Hardware]
+:pi_imager_link: link:https://www.raspberrypi.com/software[Raspberry Pi Imager]
+:pi_link: link:https://www.raspberrypi.org[Raspberry Pi]
+:pi_os_link: link:https://www.raspberrypi.com/software/operating-systems[Raspberry Pi OS]
+:xdg_link: link:https://alchemists.io/projects/xdg[XDG]
 
 = Pi
 
-This project automates the setup of your Raspberry Pi by flashing your microSSD card with the {pi_os_link} for immediate for your device.
+This project automates the setup of Raspberry Pi devices by flashing your microSSD card with a fully customized {pi_os_link} for immediate use. This allows you to spend less time setting up your Raspberry Pis and more time putting them to good use.
 
 toc::[]
 
 == Features
 
-* Sets up and configures your {pi_link}.
+* Allows you to configure and set up multiple {pi_link} devices.
+* Provides full configuration and support for multiple configuration profiles so you can manage multiple devices at once.
 
 == Requirements
 
 * {pi_link}
+* {pi_imager_link}
 
 == Setup
 
-To install, run:
+Ensure you have the {pi_imager_link} installed for your operating system because this project depends on the Raspberry Pi Imager to format the micro SSD for your Raspberry Pi. If on macOS, use {homebrew_link} as follows:
+
+[source,bash]
+----
+brew install --cask raspberry-pi-imager
+----
+
+Next, clone this project:
 
 [source,bash]
 ----
@@ -31,37 +44,137 @@ cd pi
 git checkout 0.0.0
 ----
 
-== Usage
+== Configuration
 
-=== File Structure
+By default, this project assumes you want to use the {pi_imager_link}. You can override the defaults by setting the following environment variables (see `settings/main.sh` for details):
 
-All files located within this project provide the basic structure/blueprint for creating new Bash
-script projects. The structure is organized as follows:
+* `EDITOR`: This has no default but assumes you have this configured to run your favorite text editor. For example, if using Sublime Text, the value would be: `sublime`.
+* `OS_CLI`: The path to where the {pi_imager_link} is installed. By default, this assumes a macOS installation.
+* `OS_URI`: The {pi_os_link} to be installed. By default, this assumes 64-bit, Lite OS.
+* `OS_INTEGRITY`: The integrity SHA used to verify the OS you are installing is valid. You can find the corresponding SHA for each OS on the {pi_os_link} page. You'll want to update this each time you change the `OS_URI`.
 
-....
-├── bin           # A folder for executable Bash scripts.
-│   └── run       # The main run script (which loads the lib and settings).
-├── lib           # A folder for Bash functions and custom code.
-│   └── cli.sh    # Provides CLI prompt options for the main `run` script.
-├── settings
-│   └── main.sh   # The global/project settings for easy manipulation/tweaking.
-├── .gitignore    # The Git list of folders and files to ignore.
-├── LICENSE.adoc  # The license and copyright legalities of the project.
-└── README.adoc   # The project overview, setup, usage, testing, etc.
-....
+This project comes preconfigured with several scripts to help you get up and running quickly. You can find them in the `scripts` folder:
 
-=== Debugging
+* `docker`: Installs and sets up Docker so you can run multiple projects at once.
+* `projects`: A blank slate script that does nothing by default. This is meant to be customized with your own logic for installing, setting up, and running your projects.
+* `setup`: The primary script that runs all other scripts in the sequential order: update, docker, projects.
+* `update`: Ensures your Raspberry Pi OS is upgraded and up-to-date with latest software. You can also use this script to keep your OS updated on a scheduled basis.
 
-For debugging purposes, you can add the following option:
+If you'd like to customize any of the above scripts you can do so by making a copy of them (using identical script) name in your {xdg_link} configuration folder. Example:
+
+----
+$XDG_CONFIG_HOME/pi/scripts/docker
+$XDG_CONFIG_HOME/pi/scripts/projects
+$XDG_CONFIG_HOME/pi/scripts/setup
+$XDG_CONFIG_HOME/pi/scripts/update
+----
+
+This is also a good way to zero them out entirely if you want them to do nothing.
+
+=== Raspberry Pi Imager
+
+When first getting set up, you'll want to use the {pi_imager_link} to walk through setting up your device for the first time. Afterwards, you can copy and customize the files created by the Raspberry Pi Imager. This is only necessary if you've never used this project before and don't feel comfortable writing all of the configuration files by default.
+
+. Insert the micro SSD into your machine you want to format.
+. Launch {pi_imager_link}.
+. Select your Raspberry Pi hardware.
+. Click on Raspberry Pi OS (other) software.
+. Select Raspberry Pi OS Lite (64-bit).
+. Select your micro SSD card (example: "Generic- SD/MMC Media").
+. Enter your desired hostname.
+. Fill in your capital city, time zone, and keyboard layout.
+. Fill in your username and password for your desired Raspberry user account.
+. Fill in your SSID and password for your local network.
+. Enable SSH by supplying the path to your public key (i.e. `+$HOME/.ssh/*.pub+`).
+. Choose whether to enable/disable Raspberry Pi Connect.
+. Write image to disk.
+
+When the above is complete, you'll be able to inspect the files created for you by running the following:
 
 [source,bash]
 ----
-# Prints all executed commands.
-# Alias: `set -x`.
-set -o xtrace
+cd /Volumes/bootfs
+cat network-config
+cat user-data
 ----
 
-The above is useful for debugging purposes but probably not something you want always enabled.
+You'll want to make a copy of each of the above files so you can customize them for different networks and hosts as follows:
+
+[source,bash]
+----
+cp /Volumes/bootfs/network-config $XDG_CONFIG_HOME/pi/networks/demo.yml
+cp /Volumes/bootfs/user-data $XDG_CONFIG_HOME/pi/hosts/demo.yml
+----
+
+This allows you to have multiple _profiles_, so-to-speak, for different networks and hosts. Due to these being YAML configurations, you can quickly adjust your host name, SSH public key, time zone, WiFi SSID, etc. You can learn more about the structure and configuration of each of these files via the {pi_documenation_link}.
+
+== Usage
+
+To run, use:
+
+[source,bash]
+----
+bin/run
+----
+
+You'll then be greeted with the following options:
+
+----
+Usage: run OPTION
+
+Script Options:
+  s: Setup
+  e: Edit configuration
+  o: Open configuration
+  E: Eject Card
+  q: Quit/Exit
+
+Enter selection:
+----
+
+The above breaks down as follows:
+
+* *Setup*: Formats, configures, and sets up your micro SSD card so you can boot your Raspberry Pi with desired operating system and custom configuration. A wizard will prompt you for further information.
+* *Edit configuration*: Allows you to select and edit an individual {xdg_link} configuration in your default editor.
+* *Open configuration*: Allows you to open and view your entire {xdg_link} configuration in your default editor.
+* *Eject Card*: Allows you to eject (unmount) the micro SSD card created during setup.
+* *Quit/Exit*: Allows you to quit the CLI.
+
+If you know which option you want to run, like setup, you can skip the interactive options shown above. Example:
+
+[source,bash]
+----
+bin/run s
+----
+
+=== SSH
+
+Once you've configured your Raspberry Pi settings, you can insert your micro SSD card into your Raspberry Pi, and connect power. Then you can look for your device to show up on your local network with whatever host name you gave it. To make SSH'ing into your device more convenient, edit your SSH configuration (i.e. `$HOME/.ssh/config`) to add your new host. Example:
+
+----
+Host demo.local
+  HostName 192.168.0.123
+  User admin
+  IdentityFile ~/.ssh/demo
+----
+
+With SSH configured, you can SSH into your Raspberry Pi. Example:
+
+[source,bash]
+----
+ssh admin@demo.local
+----
+
+=== Scripts
+
+After SSH'ing into your Raspberry Pi, run the `setup` script from your home directory to complete the setup of your device. Example:
+
+[source,bash]
+----
+/boot/firmware/setup
+----
+
+This'll run all of the scripts (default or custom) based on the configuration you used when setting up your micro SSD card.
 
 == Development
 
