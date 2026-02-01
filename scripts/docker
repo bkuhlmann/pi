@@ -1,0 +1,18 @@
+#! /usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+IFS=$'\n\t'
+
+# Docker: Install
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+rm -f get-docker.sh
+
+# Docker: Be Rootless
+sudo apt-get install -y uidmap
+dockerd-rootless-setuptool.sh install
+
+# Docker: Launch on Reboot
+sudo loginctl enable-linger "$USER"
