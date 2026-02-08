@@ -2,24 +2,27 @@
 :toclevels: 5
 :figure-caption!:
 
+:docker_link: link:https://www.docker.com[Docker]
 :homebrew_link: link:https://brew.sh[Homebrew]
 :pi_documenation_link: link:https://www.raspberrypi.com/documentation/computers[Raspberry Pi Documentation]
 :pi_hardware_link: link:https://www.raspberrypi.com/products[Raspberry Pi Hardware]
 :pi_imager_link: link:https://www.raspberrypi.com/software[Raspberry Pi Imager]
 :pi_link: link:https://www.raspberrypi.org[Raspberry Pi]
 :pi_os_link: link:https://www.raspberrypi.com/software/operating-systems[Raspberry Pi OS]
+:terminus_link: link:https://github.com/usetrmnl/byos_hanami[Terminus]
 :xdg_link: link:https://alchemists.io/projects/xdg[XDG]
 
 = Pi
 
-This project automates the setup of Raspberry Pi devices by flashing your microSSD card with a fully customized {pi_os_link} for immediate use. This allows you to spend less time setting up your Raspberry Pis and more time putting them to good use.
+This project automates the setup of Raspberry Pi devices by flashing your microSSD card with a fully customized {pi_os_link} for immediate use. This allows you to spend more time putting your Raspberry Pis to good use.
 
 toc::[]
 
 == Features
 
-* Allows you to configure and set up multiple {pi_link} devices.
-* Provides full configuration and support for multiple configuration profiles so you can manage multiple devices at once.
+* Allows you to setup and configure multiple {pi_link} devices.
+* Allows you to manage multiple device profiles.
+* Allows you to install and run multiple services on your devices.
 
 == Requirements
 
@@ -41,7 +44,7 @@ Next, clone this project:
 ----
 git clone https://github.com/bkuhlmann/pi.git
 cd pi
-git checkout 0.0.0
+git checkout 0.1.0
 ----
 
 == Configuration
@@ -49,22 +52,20 @@ git checkout 0.0.0
 By default, this project assumes you want to use the {pi_imager_link}. You can override the defaults by setting the following environment variables (see `settings/main.sh` for details):
 
 * `EDITOR`: This has no default but assumes you have this configured to run your favorite text editor. For example, if using Sublime Text, the value would be: `sublime`.
-* `OS_CLI`: The path to where the {pi_imager_link} is installed. By default, this assumes a macOS installation.
-* `OS_URI`: The {pi_os_link} to be installed. By default, this assumes 64-bit, Lite OS.
-* `OS_INTEGRITY`: The integrity SHA used to verify the OS you are installing is valid. You can find the corresponding SHA for each OS on the {pi_os_link} page. You'll want to update this each time you change the `OS_URI`.
+* `PI_CLI`: The path to where the {pi_imager_link} is installed. By default, this assumes a macOS installation.
+* `PI_URI`: The {pi_os_link} to be installed. By default, this assumes 64-bit, Lite OS.
+* `PI_INTEGRITY`: The integrity SHA used to verify the OS you are installing is valid. You can find the corresponding SHA for each OS on the {pi_os_link} page. You'll want to update this each time you change the `PI_URI`.
 
 This project comes preconfigured with several scripts to help you get up and running quickly. You can find them in the `scripts` folder:
 
-* `docker`: Installs and sets up Docker so you can run multiple projects at once.
-* `projects`: A blank slate script that does nothing by default. This is meant to be customized with your own logic for installing, setting up, and running your projects.
-* `setup`: The primary script that runs all other scripts in the sequential order: update, docker, projects.
+* `services`: A directory of executable scripts for managing multiple services. This is meant to be customized with your own logic for installing, configuring, and running your services. The `docker` service is provided for you, by default, so you can use {docker_link} to run multiple projects at once.
+* `setup`: The primary script that first updates your system and then runs all services.
 * `update`: Ensures your Raspberry Pi OS is upgraded and up-to-date with latest software. You can also use this script to keep your OS updated on a scheduled basis.
 
-If you'd like to customize any of the above scripts you can do so by making a copy of them (using identical script) name in your {xdg_link} configuration folder. Example:
+If you'd like to customize any of the above scripts, you can do so by making a copy of them using identical script name in your {xdg_link} configuration folder. Example:
 
 ----
-$XDG_CONFIG_HOME/pi/scripts/docker
-$XDG_CONFIG_HOME/pi/scripts/projects
+$XDG_CONFIG_HOME/pi/scripts/services
 $XDG_CONFIG_HOME/pi/scripts/setup
 $XDG_CONFIG_HOME/pi/scripts/update
 ----
@@ -174,7 +175,74 @@ After SSH'ing into your Raspberry Pi, run the `setup` script from your home dire
 /boot/firmware/setup
 ----
 
-This'll run all of the scripts (default or custom) based on the configuration you used when setting up your micro SSD card.
+This'll run all of the scripts/services (default or custom) based on the configuration you used when setting up your micro SSD card.
+
+=== Example
+
+The following is an example of what the output can look like when running setup (i.e. `bin/run s`) where I walk through all options to configure my Raspberry Pi 5 (a.k.a. `five`) using my `demo` network complete with default services and my custom {terminus_link} service:
+
+.Setup Output Example
+[%collapsible]
+====
+----
+Have you inserted your micro SSD card for formatting (y/n)? y
+
+Please select your host configuration:
+
+1) /Users/demo/.config/pi/hosts/five.yml
+2) /Users/demo/.config/pi/hosts/zero.yml
+#? 1
+
+Please select your network configuration:
+
+1) /Users/demo/.config/pi/networks/demo.yml
+#? 1
+
+Using host configuration: /Users/demo/.config/pi/hosts/five.yml.
+Using network configuration: /Users/demo/.config/pi/networks/demo.yml.
+Using setup script: /Users/demo/Engineering/OSS/pi/scripts/setup.
+Using update script: /Users/demo/Engineering/OSS/pi/scripts/update.
+
+The following external disks are detected for your micro SSD:
+
+/dev/disk4 (disk image):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:     Apple_partition_scheme                        +5.4 GB     disk4
+   1:        Apple_partition_map                         32.3 KB    disk4s1
+   2:                  Apple_HFS projects                5.4 GB     disk4s2
+
+/dev/disk5 (external, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:     FDisk_partition_scheme                        *31.7 GB    disk5
+   1:             Windows_FAT_32 bootfs                  536.9 MB   disk5s1
+   2:                      Linux                         31.2 GB    disk5s2
+
+Please enter your disk number (i.e. 1, 2, 3) for /dev/disk to format: 5
+CacheManager initialized with background thread
+Detected total system memory: 24576 MB on "macOS"
+Optimal async queue depth: 256 (available: 9093 MB, budget: 1363 MB, block size: 1024 KB, baseline: 256 )
+FileOperations log callback installed
+Starting background cache operations
+Found cached file info, starting background verification: "/Users/demo/Library/Caches/Raspberry Pi/Raspberry Pi Imager/lastdownload.cache"
+Starting background drive list polling
+Opening macOS device: /dev/rdisk5
+Device path detected, using macOS authorization...
+Successfully opened device with authorization, fd=13 (direct I/O enabled)
+Block device size: 31719424000 bytes (blocks=61952000, block_size=512)
+PrepareForSequentialRead: fd=13 path=/dev/rdisk5
+  F_RDAHEAD result: 0 (OK)
+  F_NOCACHE result: 0 (OK)
+Write successful.
+
+Copied: /Users/demo/Engineering/OSS/pi/scripts/setup to /Volumes/bootfs/setup.
+Copied: /Users/demo/Engineering/OSS/pi/scripts/update to /Volumes/bootfs/update.
+Copied: /Users/demo/Engineering/OSS/pi/scripts/services/docker to /Volumes/bootfs/services/docker.
+Copied: /Users/demo/.config/pi/scripts/services/terminus to /Volumes/bootfs/services/terminus.
+
+Raspberry Pi SSD card is ready!
+Please eject card before using.
+----
+====
 
 == Development
 
@@ -185,10 +253,6 @@ To contribute, run:
 git clone https://github.com/bkuhlmann/pi.git
 cd pi
 ----
-
-== Tests
-
-Consider using link:https://github.com/sstephenson/bats[Bats].
 
 == link:https://alchemists.io/policies/license[License]
 

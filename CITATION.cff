@@ -2,9 +2,9 @@ cff-version: 1.2.0
 message: Please use the following metadata when citing this project in your work.
 title: Pi
 abstract: Setup scripts for Raspberry Pi devices.
-version: 0.0.0
+version: 0.1.0
 license: Hippocratic-2.1
-date-released: 2026-02-01
+date-released: 2026-02-08
 authors:
   - family-names: Kuhlmann
     given-names: Brooke
