@@ -38,14 +38,49 @@ open_configuration() {
 
 export -f open_configuration
 
+# Label: Copy Script
+# Description: Copies an executable script. Skips if otherwise.
+# Parameters: $1 (required): The input path, $2 (required): The output root.
+copy_script() {
+  local input_path="$1"
+  local output_root="$2"
+
+  if [[ -x "$input_path" ]]; then
+    name="$(basename "$input_path")"
+    output_path="$output_root/$name"
+
+    cp "$input_path" "$output_path"
+    printf "%s\n" "Copied: $input_path to $output_path."
+  else
+    printf "%s\n" "Skipped copy because script isn't executable: $input_path."
+  fi
+}
+export -f copy_script
+
+# Label: Copy Services
+# Description: Copy service scripts to boot disk.
+copy_services() {
+  local output_root="$PI_BOOT_ROOT/services"
+
+  mkdir -p "$output_root"
+
+  for path in "$PI_SCRIPTS_ROOT"/services/*; do
+    copy_script "$path" "$output_root"
+  done
+
+  for path in "$XDG_SCRIPTS_ROOT"/services/*; do
+    copy_script "$path" "$output_root"
+  done
+}
+
+export -f copy_services
+
 # Label: Setup Card
 # Description: Formats and sets up micro SSD card for booting a Raspberry Pi device.
 setup_card() {
   local disk_number=""
   local host_path=""
   local network_path=""
-  local docker_script_path="$PWD/scripts/docker"
-  local projects_script_path="$PWD/scripts/projects"
   local setup_script_path="$PWD/scripts/setup"
   local update_script_path="$PWD/scripts/update"
 
@@ -78,28 +113,8 @@ setup_card() {
     fi
   done
 
-  if [[ -x "$XDG_PROJECTS_SCRIPT_PATH" ]]; then
-    projects_script_path="$XDG_PROJECTS_SCRIPT_PATH"
-  fi
-
-  if [[ -x "$XDG_DOCKER_SCRIPT_PATH" ]]; then
-    docker_script_path="$XDG_DOCKER_SCRIPT_PATH"
-  fi
-
-
-  if [[ -x "$XDG_SETUP_SCRIPT_PATH" ]]; then
-    setup_script_path="$XDG_SETUP_SCRIPT_PATH"
-  fi
-
-
-  if [[ -x "$XDG_UPDATE_SCRIPT_PATH" ]]; then
-    update_script_path="$XDG_UPDATE_SCRIPT_PATH"
-  fi
-
   printf "\n%s\n" "Using host configuration: $host_path."
   printf "%s\n" "Using network configuration: $network_path."
-  printf "%s\n" "Using projects script: $projects_script_path."
-  printf "%s\n" "Using Docker script: $docker_script_path."
   printf "%s\n" "Using setup script: $setup_script_path."
   printf "%s\n" "Using update script: $update_script_path."
 
@@ -107,7 +122,7 @@ setup_card() {
   diskutil list external
 
   while ! [[ "$disk_number" =~ ^[0-9]+$ ]]; do
-    read -r -p "Please enter your disk number (i.e. 1, 2, 3) for /dev/disk to format " disk_number
+    read -r -p "Please enter your disk number (i.e. 1, 2, 3) for /dev/disk to format: " disk_number
   done
 
   if [[ -z "$disk_number" ]]; then
@@ -115,19 +130,19 @@ setup_card() {
     exit 1
   fi
 
-  "$OS_CLI" --cli \
+  "$PI_CLI" --cli \
             --disable-eject \
             --cloudinit-networkconfig "$network_path" \
             --cloudinit-userdata "$host_path" \
-            --sha256 "$OS_INTEGRITY" \
-            "$OS_URI" "/dev/disk$disk_number"
+            --sha256 "$PI_INTEGRITY" \
+            "$PI_URI" "/dev/disk$disk_number"
 
-  cp "$projects_script_path" "/Volumes/bootfs/projects"
-  cp "$docker_script_path" "/Volumes/bootfs/docker"
-  cp "$setup_script_path" "/Volumes/bootfs/setup"
-  cp "$update_script_path" "/Volumes/bootfs/update"
+  printf "\n"
+  copy_script "$setup_script_path" "$PI_BOOT_ROOT"
+  copy_script "$update_script_path" "$PI_BOOT_ROOT"
+  copy_services
 
-  printf "%s\n" "Raspberry Pi SSD card is ready!"
+  printf "\n%s\n" "Raspberry Pi SSD card is ready!"
   printf "%s\n" "Please eject card before using."
 }
 export -f setup_card
