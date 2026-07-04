@@ -44,7 +44,7 @@ Next, clone this project:
 ----
 git clone https://github.com/bkuhlmann/pi.git
 cd pi
-git checkout 0.2.0
+git checkout 0.3.0
 ----
 
 == Configuration
