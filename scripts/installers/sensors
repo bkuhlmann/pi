@@ -1,0 +1,38 @@
+#! /usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+IFS=$'\n\t'
+
+source ./settings.sh
+source ./kit.sh
+
+setup
+
+(
+  cd "$INSTALL_ROOT"
+
+  sudo apt-get install libi2c-dev
+
+  if command -v raspi-config > /dev/null; then
+    sudo raspi-config nonint do_i2c 0
+  else
+    printf "%s\n" "Raspberry Pi Configuration is missing. Skipped."
+  fi
+
+  git clone https://github.com/bitbank2/bb_scd41 scd41
+
+  (
+    cd scd41/Linux
+    make
+  )
+
+  git clone https://github.com/usetrmnl/sensor_scanner
+
+  (
+    cd sensor_scanner
+    make
+    sensor2json "$HOME/terminus/public/sensors.json" &
+  )
+)
