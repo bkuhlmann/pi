@@ -11,6 +11,7 @@ export PI_INTEGRITY="${PI_INTEGRITY:-d2a54d6a13e95603fc70f332c87b9f4cebfafaa2d14
 export PI_SCRIPTS_ROOT="$PWD/scripts"
 export PI_URI="${PI_URI:-https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2025-12-04/2025-12-04-raspios-trixie-arm64-lite.img.xz}"
 
-export XDG_SCRIPTS_ROOT="$XDG_CONFIG_HOME/pi/scripts"
-export XDG_SETUP_SCRIPT_PATH="$XDG_CONFIG_HOME/pi/scripts/setup"
-export XDG_UPDATE_SCRIPT_PATH="$XDG_CONFIG_HOME/pi/scripts/update"
+export XDG_CONFIG_ROOT="$XDG_CONFIG_HOME/pi"
+export XDG_SCRIPTS_ROOT="$XDG_CONFIG_ROOT/scripts"
+export XDG_SETUP_SCRIPT_PATH="XDG_CONFIG_ROOT/scripts/setup"
+export XDG_UPDATE_SCRIPT_PATH="XDG_CONFIG_ROOT/scripts/update"
