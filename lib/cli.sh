@@ -8,11 +8,23 @@
 process_option() {
   case $1 in
     's')
-      setup_card;;
+      setup_drive;;
+    'op')
+      create_orange_profile;;
+    'rp')
+      create_raspberry_profile;;
+    'rn')
+      create_raspberry_network;;
+    'c')
+      create_configuration;;
     'e')
       edit_configuration;;
+    'l')
+      list_configurations;;
     'o')
       open_configuration;;
+    'd')
+      delete_configuration;;
     'E')
       eject_card;;
     'q');;
@@ -20,4 +32,3 @@ process_option() {
       printf "ERROR: Invalid option.\n";;
   esac
 }
-export -f process_option
