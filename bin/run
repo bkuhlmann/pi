@@ -12,6 +12,7 @@ while true; do
     printf "  c: Create configuration\n"
     printf "  e: Edit configuration\n"
     printf "  o: Open configuration\n"
+    printf "  d: Delete configuration\n"
     printf "  E: Eject Card\n"
     printf "  q: Quit/Exit\n\n"
     read -r -p "Enter selection: " response

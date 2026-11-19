@@ -15,6 +15,8 @@ process_option() {
       edit_configuration;;
     'o')
       open_configuration;;
+    'd')
+      delete_configuration;;
     'E')
       eject_card;;
     'q');;

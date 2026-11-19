@@ -52,6 +52,31 @@ edit_configuration() {
 
 export -f edit_configuration
 
+# Label: Delete Configuration
+# Description: Deletes an existing XDG configuration.
+delete_configuration() {
+  local path=""
+  local files=()
+
+  while IFS= read -r file; do
+    files+=("$file")
+  done < <(find "$XDG_CONFIG_HOME/pi" -type f -print | sort)
+
+  printf "%s\n" "Please select the desired configuration to delete ('q' to quit):"
+
+  select path in "${files[@]}"; do
+    if [[ -n $path ]]; then
+      rm -i "$path"
+      printf "%s\n" "Deleted: $path"
+      break
+    else
+      break
+    fi
+  done
+}
+
+export -f delete_configuration
+
 # Label: Eject
 # Description: Ejects (unmounts) micro SSD card.
 eject_card() {
