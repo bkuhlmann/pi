@@ -4,10 +4,15 @@
 # Description: Edits a XDG configuration using your default editor.
 edit_configuration() {
   local path=""
+  local files=()
 
-  printf "%s\n" "Please select your desired Pi configuration to edit (use 'q' to quit):"
+  while IFS= read -r file; do
+    files+=("$file")
+  done < <(find "$XDG_CONFIG_ROOT" -type f -print | sort)
 
-  select path in $XDG_CONFIG_HOME/pi/**/*; do
+  printf "%s\n" "Please select your desired Pi configuration to edit ('q' to quit):"
+
+  select path in "${files[@]}"; do
     if [[ -n $path ]]; then
       printf "%s\n" "Editing: $path..."
       "$EDITOR" "$path"
