@@ -1,5 +1,36 @@
 #! /usr/bin/env bash
 
+# Label: Create Configuration
+# Description: Create a new XDG configuration using your default editor.
+create_configuration() {
+  printf "%s\n" "Please select the directory to create you configuration in ('q' to quit):"
+
+  select path in "$XDG_CONFIG_ROOT"/* "$XDG_CONFIG_ROOT"; do
+    if [[ -n $path ]]; then
+      break
+    else
+      break
+    fi
+  done
+
+  if [[ -z "$path" ]]; then
+    exit
+  fi
+
+  printf "\n"
+  read -r -p "Please supply the file name, with relative path (if any), to create ('q' to quit): " name
+
+  if [[ "$name" == "q" ]]; then
+    exit
+  fi
+
+  path="$path/$name"
+  mkdir -p "$(dirname "$path")"
+
+  printf "%s\n" "Editing: $path..."
+  "$EDITOR" "$path"
+}
+
 # Label: Edit Configuration
 # Description: Edits a XDG configuration using your default editor.
 edit_configuration() {
@@ -24,6 +55,49 @@ edit_configuration() {
 }
 
 export -f edit_configuration
+
+# Label: List Configurations
+# Description: Lists XDG configuration files.
+list_configurations() {
+  printf "%s\n\n" "You have the following configurations:"
+
+  find "$XDG_CONFIG_ROOT" -type f -print0 | sort -z | while IFS= read -r -d '' file; do
+    printf "%s\n" "$file"
+  done
+}
+
+# Label: Delete Configuration
+# Description: Deletes an existing XDG configuration.
+delete_configuration() {
+  local path=""
+  local files=()
+
+  while IFS= read -r file; do
+    files+=("$file")
+  done < <(find "$XDG_CONFIG_ROOT" -type f -print | sort)
+
+  printf "%s\n\n" "Please select the configuration to delete ('q' to quit):"
+
+  select path in "${files[@]}"; do
+    if [[ -n $path ]]; then
+      printf "\n"
+      rm -i "$path"
+      break
+    else
+      break
+    fi
+  done
+
+  if [[ -z "$path" ]]; then
+    exit
+  fi
+
+  if [[ -e "$path" ]]; then
+    printf "%s\n" "Skipped: $path."
+  else
+    printf "%s\n" "Deleted: $path"
+  fi
+}
 
 # Label: Eject
 # Description: Ejects (unmounts) micro SSD card.
