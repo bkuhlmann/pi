@@ -1,0 +1,19 @@
+#! /usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+IFS=$'\n\t'
+
+source ./settings.sh
+source ./kit.sh
+
+setup
+
+(
+  cd "$INSTALL_ROOT"
+  git clone https://github.com/usetrmnl/terminus terminus
+  cd terminus
+  bin/setup docker
+  docker compose up --detach
+)
