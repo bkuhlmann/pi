@@ -15,12 +15,12 @@ while true; do
   if [[ $# == 0 ]]; then
     printf "\nUsage: run OPTION\n"
     printf "\nScript Options:\n"
-    printf "  s: Setup\n"
+    printf "  s: Setup drive\n"
     printf "  c: Create configuration\n"
     printf "  e: Edit configuration\n"
     printf "  o: Open configuration\n"
     printf "  d: Delete configuration\n"
-    printf "  E: Eject Card\n"
+    printf "  E: Eject drive\n"
     printf "  q: Quit/Exit\n\n"
     read -r -p "Enter selection: " response
     printf "\n"

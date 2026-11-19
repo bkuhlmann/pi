@@ -8,7 +8,7 @@
 process_option() {
   case $1 in
     's')
-      setup_card;;
+      setup_drive;;
     'c')
       create_configuration;;
     'e')
