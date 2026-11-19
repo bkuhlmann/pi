@@ -1,5 +1,37 @@
 #! /usr/bin/env bash
 
+# Label: Crate Configuration
+# Description: Create a new XDG configuration using your default editor.
+create_configuration() {
+  printf "%s\n" "Please select the directory to create you configuration in ('q' to quit):"
+
+  select path in "$XDG_CONFIG_HOME"/pi/* "$XDG_CONFIG_HOME"/pi; do
+    if [[ -n $path ]]; then
+      break
+    else
+      break
+    fi
+  done
+
+  if [[ -z "$path" ]]; then
+    exit
+  fi
+
+  read -r -p "Please supply the file name, with optional directory structure, to create ('q' to quit): " name
+
+  if [[ "$name" == "q" ]]; then
+    exit
+  fi
+
+  path="$path/$name"
+  mkdir -p "$(dirname "$path")"
+
+  printf "%s\n" "Editing: $path..."
+  "$EDITOR" "$path"
+}
+
+export -f create_configuration
+
 # Label: Edit Configuration
 # Description: Edits a XDG configuration using your default editor.
 edit_configuration() {

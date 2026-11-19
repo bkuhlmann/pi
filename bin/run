@@ -9,6 +9,7 @@ while true; do
     printf "\nUsage: run OPTION\n"
     printf "\nScript Options:\n"
     printf "  s: Setup\n"
+    printf "  c: Create configuration\n"
     printf "  e: Edit configuration\n"
     printf "  o: Open configuration\n"
     printf "  E: Eject Card\n"

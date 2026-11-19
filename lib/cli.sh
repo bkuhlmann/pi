@@ -9,6 +9,8 @@ process_option() {
   case $1 in
     's')
       setup_card;;
+    'c')
+      create_configuration;;
     'e')
       edit_configuration;;
     'o')
