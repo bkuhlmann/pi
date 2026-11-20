@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+IFS=$'\n\t'
+
+source ./settings.sh
+source ./kit.sh
+
+setup
+
+(
+  cd "$INSTALL_ROOT"
+
+  # Install
+  curl --fail --silent --location https://get.docker.com --output get-docker.sh
+  sudo sh get-docker.sh
+  rm -f get-docker.sh
+
+  # Be Rootless
+  sudo apt-get install --yes uidmap
+  dockerd-rootless-setuptool.sh install --force
+
+  # Launch on Reboot
+  sudo loginctl enable-linger "$USER"
+)
