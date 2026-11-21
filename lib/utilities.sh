@@ -137,74 +137,87 @@ copy_services() {
 
 export -f copy_services
 
-# Label: Setup Card
-# Description: Formats and sets up micro SSD card for booting a Raspberry Pi device.
-setup_card() {
-  local disk_number=""
-  local host_path=""
-  local network_path=""
-  local setup_script_path="$PWD/scripts/setup"
-  local update_script_path="$PWD/scripts/update"
-
-  read -r -p "Have you inserted your micro SSD card for formatting (y/n)? " disk_ready
-
-  if [[ "$disk_ready" != "y" ]]; then
-    printf "%s\n" "ERROR: Raspberry Pi card formatting aborted."
-    exit 1
-  fi
-
-  printf "\n%s\n\n" "Please select your host configuration:"
-
-  select host_path in $XDG_CONFIG_HOME/pi/hosts/*; do
-    if [[ -n $host_path ]]; then
-      break
-    else
-      printf "%s\n" "ERROR: Invalid selection."
-      exit 1
-    fi
-  done
-
-  printf "\n%s\n\n" "Please select your network configuration:"
-
-  select network_path in $XDG_CONFIG_HOME/pi/networks/*; do
-    if [[ -n $network_path ]]; then
-      break
-    else
-      printf "%s\n" "ERROR: Invalid selection."
-      exit 1
-    fi
-  done
-
-  printf "\n%s\n" "Using host configuration: $host_path."
-  printf "%s\n" "Using network configuration: $network_path."
-  printf "%s\n" "Using setup script: $setup_script_path."
-  printf "%s\n" "Using update script: $update_script_path."
-
-  printf "\n%s\n\n" "The following external disks are detected for your micro SSD:"
-  diskutil list external
-
-  while ! [[ "$disk_number" =~ ^[0-9]+$ ]]; do
-    read -r -p "Please enter your disk number (i.e. 1, 2, 3) for /dev/disk to format: " disk_number
-  done
-
-  if [[ -z "$disk_number" ]]; then
-    printf "%s\n" "ERROR: Invalid disk number."
-    exit 1
-  fi
-
-  "$PI_CLI" --cli \
-            --disable-eject \
-            --cloudinit-networkconfig "$network_path" \
-            --cloudinit-userdata "$host_path" \
-            --sha256 "$PI_INTEGRITY" \
-            "$PI_URI" "/dev/disk$disk_number"
-
-  printf "\n"
-  copy_script "$setup_script_path" "$PI_BOOT_ROOT"
-  copy_script "$update_script_path" "$PI_BOOT_ROOT"
-  copy_services
-
-  printf "\n%s\n" "Raspberry Pi SSD card is ready!"
-  printf "%s\n" "Please eject card before using."
+# Label: Get Basename
+# Description: Answers file basename.
+# Parameters: $1 (required): The file path.
+get_basename() {
+  path=${1##*/}
+  printf "%s" "${path%.*}"
 }
-export -f setup_card
+
+# Label: Uniqueify Files
+# Description: Builds list of unique files from two different root directories.
+# Parameters: $1 (required): User path, $2 (required): Project path.
+uniqueify_files() {
+  local -r user_root="$1"
+  local -r project_root="$2"
+  local -n __files="$3"
+
+  declare -A __seen=()
+  __files=()
+
+  for __file in "$user_root"/* "$project_root"/*; do
+    [[ -f $__file ]] || continue
+    __name=${__file##*/}
+    [[ -n ${__seen[$__name]+x} ]] && continue
+    __seen[$__name]=1
+    __files+=("$__name")
+  done
+}
+
+# Label: Scripts Path
+# Description: Dynamically builds path to scripts.
+# Parameters: $1 (required): The relative path.
+scripts_path() {
+  local relative_path="$1"
+  local user_path="$XDG_CONFIG_ROOT/scripts/$relative_path"
+  local project_path="$PWD/scripts/$relative_path"
+
+  if [[ -r "$user_path" ]]; then
+    printf "%s" "$user_path"
+  else
+    printf "%s" "$project_path"
+  fi
+}
+
+# Label: Setup Drive
+# Description: Formats and sets up micro SSD for booting a Pi device.
+setup_drive() {
+  while true; do
+    if [[ $# == 0 ]]; then
+      printf "\nPlease select your operating system:\n"
+      printf "  o: Orange Pi\n"
+      printf "  r: Raspberry Pi\n"
+      printf "  q: Quit/Exit\n\n"
+      read -r -p "Enter selection: " response
+      printf "\n"
+      process_drive_option "$response"
+    else
+      process_drive_option "$1"
+    fi
+    break
+  done
+}
+
+export -f setup_drive
+
+# Label: Process Drive Option
+# Description: Sets up drive based on user selection.
+process_drive_option() {
+  case $1 in
+    'o')
+      setup_orange_pi;;
+    'r')
+      setup_raspberry_pi;;
+    'q');;
+    *)
+      printf "ERROR: Invalid option.\n";;
+  esac
+}
+
+# Label: Setup Temporary Root
+# Description: Cleans and makes temporary root directory.
+setup_temp_root() {
+  rm -rf "$PI_TEMP_ROOT"
+  mkdir "$PI_TEMP_ROOT"
+}
