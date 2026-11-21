@@ -1,0 +1,29 @@
+#cloud-config
+
+# Documentation: https://www.raspberrypi.com/news/cloud-init-on-raspberry-pi-os
+
+manage_resolv_conf: false
+hostname: "${NAME}"
+manage_etc_hosts: true
+apt:
+  preserve_sources_list: true
+  conf: |
+    Acquire {
+      Check-Date "false";
+    };
+timezone: "${TIME_ZONE}"
+keyboard:
+  model: pc105
+  layout: "us"
+users:
+- name: "${USER_NAME}"
+  shell: /bin/bash
+  lock_passwd: false
+  passwd: "${USER_PASSWORD}"
+  ssh_authorized_keys:
+    - "${USER_KEY}"
+  sudo: null
+enable_ssh: true
+ssh_pwauth: false
+runcmd:
+  - [ systemctl, enable, --now, ssh ]

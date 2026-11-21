@@ -1,0 +1,18 @@
+# Documentation: https://www.raspberrypi.com/news/cloud-init-on-raspberry-pi-os
+
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+      dhcp6: true
+      optional: true
+  wifis:
+    wlan0:
+      dhcp4: true
+      regulatory-domain: "${COUNTRY}"
+      access-points:
+        "${NETWORK_SSID}":
+          hidden: true
+          password: "${NETWORK_PASSWORD}"
+      optional: true
