@@ -1,8 +1,14 @@
 #! /usr/bin/env bash
 
-source settings/main.sh
-source lib/utilities.sh
-source lib/cli.sh
+set -o nounset
+set -o errexit
+set -o pipefail
+IFS=$'\n\t'
+
+source ./settings/main.sh
+source ./lib/utilities.sh
+source ./lib/orange.sh
+source ./lib/cli.sh
 
 while true; do
   if [[ $# == 0 ]]; then
