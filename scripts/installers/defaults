@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+IFS=$'\n\t'
+
+sudo apt-get install --yes avahi-daemon
+sudo apt-get install --yes curl
+sudo apt-get install --yes git
