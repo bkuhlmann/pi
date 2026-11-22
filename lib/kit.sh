@@ -97,10 +97,25 @@ delete_configuration() {
   fi
 }
 
-# Label: Eject
-# Description: Ejects (unmounts) micro SSD card.
-eject_card() {
-  diskutil eject "bootfs"
+# Label: Eject Drive
+# Description: Ejects (unmounts) micro SSD drive.
+eject_drive() {
+  local disk_number=""
+
+  printf "\n%s\n\n" "Found the following external disks:"
+  diskutil list external
+
+  while ! [[ "$disk_number" =~ ^[0-9]+$ ]]; do
+    read -r -p "Enter your disk number (i.e. 1, 2, 3) for /dev/disk to eject: " disk_number
+  done
+
+  if [[ -z "$disk_number" ]]; then
+    printf "%s\n" "ERROR: Invalid disk number."
+    exit 1
+  fi
+
+  diskutil eject "/dev/disk${disk_number}"
+  printf "\n%s\n" "It's safe to remove your SSD drive now."
 }
 
 # Label: Open Configuration

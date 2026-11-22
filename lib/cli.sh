@@ -26,7 +26,7 @@ process_option() {
     'd')
       delete_configuration;;
     'E')
-      eject_card;;
+      eject_drive;;
     'q');;
     *)
       printf "ERROR: Invalid option.\n";;
