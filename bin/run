@@ -5,7 +5,7 @@ set -o errexit
 set -o pipefail
 IFS=$'\n\t'
 
-source ./settings/main.sh
+source ./lib/configuration.sh
 source ./lib/utilities.sh
 source ./lib/orange.sh
 source ./lib/raspberry.sh
