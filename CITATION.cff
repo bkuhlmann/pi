@@ -2,9 +2,9 @@ cff-version: 1.2.0
 message: Please use the following metadata when citing this project in your work.
 title: Pi
 abstract: Setup scripts for Raspberry Pi devices.
-version: 0.4.0
+version: 0.5.0
 license: Hippocratic-2.1
-date-released: 2026-10-22
+date-released: 2026-11-22
 authors:
   - family-names: Kuhlmann
     given-names: Brooke
@@ -14,6 +14,7 @@ keywords:
  - bash
  - shell
  - scripts
+ - orange
  - raspberry
  - pi
  - setup
