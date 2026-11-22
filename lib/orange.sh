@@ -135,7 +135,7 @@ setup_orange_pi() {
                                 "$partition:/root/provisioning.sh"
 
   installers=()
-  uniqueify_files "$XDG_CONFIG_ROOT/scripts/installers" "$PWD/scripts/installers" installers
+  uniqueify_files "$XDG_CONFIG_ROOT/scripts/installers" "$PWD/lib/scripts/installers" installers
 
   sudo e2mkdir -O 0 -G 0 -P 0755 -v "$partition:/etc/skel/installers"
 

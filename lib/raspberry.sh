@@ -164,7 +164,7 @@ setup_raspberry_pi() {
   cp -v "$network_path" "$volume_path/network-config"
 
   installers=()
-  uniqueify_files "$XDG_CONFIG_ROOT/scripts/installers" "$PWD/scripts/installers" installers
+  uniqueify_files "$XDG_CONFIG_ROOT/scripts/installers" "$PWD/lib/scripts/installers" installers
 
   mkdir -p "$volume_path/installers"
 

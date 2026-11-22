@@ -146,7 +146,7 @@ uniqueify_files() {
 scripts_path() {
   local relative_path="$1"
   local user_path="$XDG_CONFIG_ROOT/scripts/$relative_path"
-  local project_path="$PWD/scripts/$relative_path"
+  local project_path="$PWD/lib/scripts/$relative_path"
 
   if [[ -r "$user_path" ]]; then
     printf "%s" "$user_path"
