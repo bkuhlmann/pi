@@ -54,8 +54,6 @@ edit_configuration() {
   done
 }
 
-export -f edit_configuration
-
 # Label: List Configurations
 # Description: Lists XDG configuration files.
 list_configurations() {
@@ -104,7 +102,6 @@ delete_configuration() {
 eject_card() {
   diskutil eject "bootfs"
 }
-export -f eject_card
 
 # Label: Open Configuration
 # Description: Opens entire XDG configuration in default editor.
@@ -114,45 +111,6 @@ open_configuration() {
   printf "%s\n" "Opening: $root..."
   "$EDITOR" "$root"
 }
-
-export -f open_configuration
-
-# Label: Copy Script
-# Description: Copies an executable script. Skips if otherwise.
-# Parameters: $1 (required): The input path, $2 (required): The output root.
-copy_script() {
-  local input_path="$1"
-  local output_root="$2"
-
-  if [[ -x "$input_path" ]]; then
-    name="$(basename "$input_path")"
-    output_path="$output_root/$name"
-
-    cp "$input_path" "$output_path"
-    printf "%s\n" "Copied: $input_path to $output_path."
-  else
-    printf "%s\n" "Skipped copy because script isn't executable: $input_path."
-  fi
-}
-export -f copy_script
-
-# Label: Copy Services
-# Description: Copy service scripts to boot disk.
-copy_services() {
-  local output_root="$PI_BOOT_ROOT/services"
-
-  mkdir -p "$output_root"
-
-  for path in "$PI_SCRIPTS_ROOT"/services/*; do
-    copy_script "$path" "$output_root"
-  done
-
-  for path in "$XDG_SCRIPTS_ROOT"/services/*; do
-    copy_script "$path" "$output_root"
-  done
-}
-
-export -f copy_services
 
 # Label: Get Basename
 # Description: Answers file basename.
@@ -215,8 +173,6 @@ setup_drive() {
     break
   done
 }
-
-export -f setup_drive
 
 # Label: Process Drive Option
 # Description: Sets up drive based on user selection.
