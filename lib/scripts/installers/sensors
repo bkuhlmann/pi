@@ -33,6 +33,6 @@ setup
   (
     cd sensor_scanner
     make
-    sensor2json "$HOME/terminus/public/sensors.json" &
+    sensor2json "$HOME/apps/terminus/public/sensors.json" &
   )
 )
